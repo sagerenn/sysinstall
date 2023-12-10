@@ -1,0 +1,18 @@
+[Unit]
+
+Description=OneDrive
+
+After=network-online.target
+
+[Service]
+
+Type=simple
+
+ExecStart=rclone --vfs-cache-mode writes mount onedrive: %h/OneDrive
+
+Restart=on-abort
+
+[Install]
+
+WantedBy=default.target
+

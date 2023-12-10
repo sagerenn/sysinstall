@@ -1,0 +1,83 @@
+---
+# tasks file for apt
+- name: Install required packages with apt
+  package:
+    name: "{{ install_packages }}"
+    state: present
+  become: yes
+  tags:
+    - install_packages
+
+- name: change the config of proxychains4
+  become: yes
+  ansible.builtin.replace:
+    path: /etc/proxychains4.conf
+    regexp: '^socks4.*9050$'
+    replace: 'socks5  127.0.0.1 7890'
+
+- name: change the config of docker
+  become: no
+  command: "{{ item }}"
+  with_items:
+  - sudo usermod -aG docker {{ ansible_env.USER }}
+  - newgrp docker
+
+# - name: Install packages with snap
+#   become: yes
+#   snap:
+#     name: 
+#       - keepassxc
+
+- name: Install packages with snap --classic
+  become: yes
+  snap:
+    name: 
+      - go
+      - code
+    classic: yes
+
+- name: change the config of golang
+  become: no
+  command: "{{ item }}"
+  with_items:
+  - go env -w GOPROXY=https://goproxy.cn,direct
+
+- name: create the folder
+  become: no
+  command: "{{ item }}"
+  with_items:
+  - mkdir -p {{ ansible_env.HOME }}/.config/systemd/user
+  - mkdir -p {{ ansible_env.HOME }}/.config/rclone
+  - mkdir -p {{ ansible_env.HOME }}/OneDrive
+
+- name: register the service of rclone
+  copy:
+    src: onedrive.service
+    dest: "{{ ansible_env.HOME }}/.config/systemd/user/onedrive.service"
+
+- name: Download config of rclone
+  ansible.builtin.get_url:
+    url: "{{ ansible_env.onedrive }}"
+    dest: "{{ ansible_env.HOME }}/.config/rclone/rclone.conf"
+
+- name: enable the service of onedrive
+  become: no
+  command: "{{ item }}"
+  with_items:
+  - systemctl start onedrive --user
+  - systemctl enable onedrive --user
+
+- name: Install microsoft edge
+  become: yes
+  shell: |
+    wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+    add-apt-repository -y "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
+    apt update
+    apt install -y microsoft-edge-stable
+
+- name: Install clash verge
+  become: yes
+  shell: |
+    export version=$(curl -s -L https://github.com/zzzgydi/clash-verge/releases/latest | grep -iE 'github.com.*\/tag\/' | head -n 1 | awk -F = '{print $NF}' | sed 's/\".*//g' | awk -F / '{print $NF}')
+    wget -c -O /tmp/clash-verge.deb https://github.com/zzzgydi/clash-verge/releases/download/${version}/clash-verge_${version}_amd64.deb
+    apt install -y /tmp/clash-verge.deb

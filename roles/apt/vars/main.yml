@@ -1,0 +1,18 @@
+---
+# vars file for apt
+install_packages:
+  - vim
+  - git
+  - curl
+  - rclone
+  - docker.io
+  - proxychains4
+  - ibus-rime
+  - copyq
+  - openssh-server
+  - flameshot
+  - keepassxc
+
+network_packages:
+  - https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_120.0.2210.61-1_amd64.deb
+  - https://github.com/zzzgydi/clash-verge/releases/download/v1.3.8/clash-verge_1.3.8_amd64.deb

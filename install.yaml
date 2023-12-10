@@ -1,0 +1,9 @@
+- name: install
+  hosts: localhost
+  gather_facts: yes
+  become: no
+
+  tasks:
+    - name: apt role
+      import_role:
+        name: apt
