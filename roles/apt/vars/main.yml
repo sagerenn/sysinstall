@@ -16,6 +16,7 @@ install_packages:
   - flatpak
   - mysql-client
   - redis-tools
+  - wireshark
 
 network_packages:
   - https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_120.0.2210.61-1_amd64.deb

@@ -83,17 +83,25 @@
     apt update
     apt install -y microsoft-edge-stable
 
-- name: Install tencent meeting
-  become: yes
-  shell: |
-    flatpak remote-add --if-not-exists flathub https://mirror.sjtu.edu.cn/flathub
-    flatpak install -y flathub com.tencent.wemeet
-
 - name: change the config of docker
   become: yes
   copy:
     src: docker.json
     dest: "/etc/docker/daemon.json"
+
+- name: Install clash verge
+  become: yes
+  shell: |
+    echo 'deb [trusted=yes] https://apt.fury.io/sagedeb/ /' > /etc/apt/sources.list.d/fury.list
+    apt update
+    apt install -y clash-verge wemeet
+
+- name: change the config of wemeet
+  become: yes
+  ansible.builtin.replace:
+    path: /etc/gdm3/custom.conf
+    regexp: "^#.*WaylandEnable="
+    replace: "WaylandEnable="
 
 - name: reload the service
   become: yes
@@ -101,10 +109,4 @@
   with_items:
     - systemctl daemon-reload
     - systemctl restart docker
-
-- name: Install clash verge
-  become: yes
-  shell: |
-    echo 'deb [trusted=yes] https://apt.fury.io/sagedeb/ /' > /etc/apt/sources.list.d/fury.list
-    apt update
-    apt install -y clash-verge
+    - systemctl restart gdm3
